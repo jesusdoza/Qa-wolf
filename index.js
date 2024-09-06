@@ -18,7 +18,6 @@ async function sortHackerNewsArticles() {
 
   while (totalRowsSeen < ROWS_TO_CHECK) {
     const rows = await page.locator(".athing + tr > td.subtext span.age");
-    const title = await page.locator(".athing td.title");
 
     const timeElements = await rows.all();
 
@@ -37,6 +36,7 @@ async function sortHackerNewsArticles() {
 
       prevTime = date;
     }
+
     const moreLink = await page.locator(".morelink").first();
     await moreLink.click();
   }
