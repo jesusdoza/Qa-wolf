@@ -16,10 +16,19 @@ async function sortHackerNewsArticles() {
   // go to Hacker News
   await page.goto("https://news.ycombinator.com/newest");
 
-  const rows = await page.locator(".athing + tr > td.subtext span.age");
-  const timeElements = await rows.all();
   while (totalRowsSeen < ROWS_TO_CHECK) {
+    const rows = await page.locator(".athing + tr > td.subtext span.age");
+    const title = await page.locator(".athing td.title");
+
+    const timeElements = await rows.all();
+    const titleElements = await title.all();
+
+    for (const title of titleElements) {
+      console.log("title", await title.innerText());
+    }
+
     for (const rowElement of timeElements) {
+      console.log("rowElement", await rowElement.innerText());
       const timeStr = await rowElement.getAttribute("title");
 
       const date = Date.parse(timeStr);
