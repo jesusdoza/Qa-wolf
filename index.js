@@ -11,22 +11,25 @@ async function sortHackerNewsArticles() {
 
   const ROWS_TO_CHECK = 100;
   let totalRowsSeen = 0;
-  let prevTime = Date.now();
+  let prevDate = Date.now();
 
   // go to Hacker News
   await page.goto("https://news.ycombinator.com/newest");
 
   while (totalRowsSeen < ROWS_TO_CHECK) {
-    const rows = await page.locator(".athing + tr > td.subtext span.age");
+    const spanWithTimeList = await page.locator(
+      ".athing + tr > td.subtext span.age"
+    );
 
-    const timeElements = await rows.all();
+    const timeElements = await spanWithTimeList.all();
 
     for (const rowElement of timeElements) {
+      // <span class="age" title="2024-09-06T02:08:46.000000Z"><a href="item?id=41462225">6 minutes ago</a></span>
       const timeStr = await rowElement.getAttribute("title");
 
       const date = Date.parse(timeStr);
 
-      expect(date).toBeLessThanOrEqual(prevTime);
+      expect(date).toBeLessThanOrEqual(prevDate);
 
       totalRowsSeen += 1;
 
@@ -34,9 +37,10 @@ async function sortHackerNewsArticles() {
         break;
       }
 
-      prevTime = date;
+      prevDate = date;
     }
 
+    //each page only holds 30 items go to next page
     const moreLink = await page.locator(".morelink").first();
     await moreLink.click();
   }
