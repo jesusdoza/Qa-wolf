@@ -16,40 +16,49 @@ async function sortHackerNewsArticles() {
   // go to Hacker News
   await page.goto("https://news.ycombinator.com/newest");
 
+  await page.waitForLoadState("domcontentloaded");
+
   while (totalRowsSeen < ROWS_TO_CHECK) {
+    await page.waitForLoadState("domcontentloaded");
+    const articles = await page.locator(".athing").all();
     const spanWithTimeList = await page.locator(
       ".athing + tr > td.subtext span.age"
     );
 
     const timeElements = await spanWithTimeList.all();
 
-    for (const rowElement of timeElements) {
-      // <span class="age" title="2024-09-06T02:08:46.000000Z"><a href="item?id=41462225">6 minutes ago</a></span>
-      const timeStr = await rowElement.getAttribute("title");
-
-      const date = Date.parse(timeStr);
-
-      expect(date).toBeLessThanOrEqual(prevDate);
-
-      totalRowsSeen += 1;
+    // for (const row of timeElements) {
+    for (let i = 0; i < timeElements.length; i++) {
+      const row = timeElements[i];
+      const title = await articles[i].innerText();
 
       if (totalRowsSeen == ROWS_TO_CHECK) {
         break;
       }
+      // <span class="age" title="2024-09-06T02:08:46.000000Z"><a href="item?id=41462225">6 minutes ago</a></span>
+      const timeStr = await row.getAttribute("title");
+
+      const date = Date.parse(timeStr);
+
+      expect(date, `article ${title}`).toBeLessThanOrEqual(prevDate);
+
+      totalRowsSeen += 1;
 
       prevDate = date;
     }
 
     //each page only holds 30 items go to next page
-    const moreLink = await page.getByRole("link", { name: "More" }).first();
-    // const moreLink = await page.locator(".morelink").first();
+
+    // const moreLink = await page.getByRole("link", { name: "More" }).first();
+    const moreLink = await page.locator(".morelink").first();
     await new Promise((resolve) => {
-      setTimeout(resolve, 1000);
+      setTimeout(resolve, 500);
     });
     await moreLink.click();
   }
 
   console.log("totalRowsSeen", totalRowsSeen);
+  await browser.close();
 }
 
 (async () => {
