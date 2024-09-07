@@ -16,10 +16,7 @@ async function sortHackerNewsArticles() {
   // go to Hacker News
   await page.goto("https://news.ycombinator.com/newest");
 
-  await page.waitForLoadState("domcontentloaded");
-
   while (totalRowsSeen < ROWS_TO_CHECK) {
-    await page.waitForLoadState("domcontentloaded");
     const articles = await page.locator(".athing").all();
     const spanWithTimeList = await page.locator(
       ".athing + tr > td.subtext span.age"
@@ -55,6 +52,7 @@ async function sortHackerNewsArticles() {
       setTimeout(resolve, 500);
     });
     await moreLink.click();
+    await page.waitForLoadState("domcontentloaded");
   }
 
   console.log("totalRowsSeen", totalRowsSeen);
