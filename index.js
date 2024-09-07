@@ -45,17 +45,13 @@ async function sortHackerNewsArticles() {
     }
 
     //each page only holds 30 items go to next page
-
-    // const moreLink = await page.getByRole("link", { name: "More" }).first();
     const moreLink = await page.locator(".morelink").first();
-    await new Promise((resolve) => {
-      setTimeout(resolve, 500);
-    });
+
     await moreLink.click();
     await page.waitForLoadState("domcontentloaded");
   }
 
-  console.log("totalRowsSeen", totalRowsSeen);
+  // console.log("totalRowsSeen", totalRowsSeen);
   await browser.close();
 }
 
